@@ -308,7 +308,13 @@ def autodiscover():
     import imp
     from django.conf import settings
 
-    for app in settings.INSTALLED_APPS:
+    apps = settings.INSTALLED_APPS
+    if hasattr(settings, "BACKGROUND_TASK_DISCOVER_APPS"):
+        apps = settings.BACKGROUND_TASK_DISCOVER_APPS
+    if hasattr(settings, "BACKGROUND_TASK_EXCLUDE_APPS"):
+        apps = set(apps) - set(settings.BACKGROUND_TASK_EXCLUDE_APPS)
+
+    for app in apps:
         try:
             app_path = import_module(app).__path__
         except (AttributeError, ImportError):
